@@ -1,5 +1,5 @@
 <script setup>
-import backdrop from '~/assets/img/background.png'
+import backdrop from '~/assets/img/background.webp'
 import Danantara from '~/assets/logo/danantara.svg?component'
 import TimahIndustri from '~/assets/logo/timahindustri.svg?component'
 
@@ -39,6 +39,7 @@ defineProps({ maxWidth: { type: String, default: 'none' } })
   display: flex;
   align-items: stretch;
   overflow: hidden;
+  z-index: 1;
 
   gap: var(--size-s);
   padding: var(--size-s);

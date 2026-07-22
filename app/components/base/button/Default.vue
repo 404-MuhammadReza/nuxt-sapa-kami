@@ -34,6 +34,7 @@ const displayText = computed(() => {
 <style scoped>
 button {
   width: v-bind(width);
+  flex-shrink: 0;
 
   display: flex;
   align-items: center;
@@ -99,6 +100,7 @@ button:not(.primary, .warning, .danger, .black) .icon-button {
 button span {
   font-size: var(--size-s);
   font-weight: var(--font-regular);
+  white-space: nowrap;
 }
 
 @media (hover: hover) and (pointer: fine) {
