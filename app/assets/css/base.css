@@ -1,0 +1,148 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+
+:root {
+  /* Colors */
+  /* Neutral */
+  --white: #FFFFFF;
+  --black: #292929;
+
+  /* Grey */
+  --grey-50: #F8FAFC;
+  --grey-100: #F1F5F9;
+  --grey-200: #E2E8F0;
+  --grey-300: #CBD5E1;
+  --grey-400: #94A3B8;
+  --grey-500: #64748B;
+  --grey-600: #475569;
+  --grey-700: #334155;
+  --grey-800: #1E293B;
+  --grey-900: #0F172A;
+
+  /* Blue */
+  --blue-50: #F0F8FF;
+  --blue-100: #E0F1FF;
+  --blue-200: #BDE0FF;
+  --blue-300: #8AC9FF;
+  --blue-400: #60B6FF;
+  --blue-500: #3EA8FF;
+  --blue-600: #268BE6;
+  --blue-700: #1B6EBF;
+  --blue-800: #165796;
+  --blue-900: #124575;
+
+  /* Red */
+  --red-50: #FEF2F2;
+  --red-100: #FEE2E2;
+  --red-200: #FECACA;
+  --red-300: #FCA5A5;
+  --red-400: #F87171;
+  --red-500: #EF4444;
+  --red-600: #DC2626;
+  --red-700: #B91C1C;
+  --red-800: #991B1B;
+  --red-900: #7F1D1D;
+
+  /* Yellow */
+  --yellow-50: #FFF7E6;
+  --yellow-100: #FFEBCC;
+  --yellow-200: #FFD799;
+  --yellow-300: #FFC466;
+  --yellow-400: #FFB033;
+  --yellow-500: #FF9D00;
+  --yellow-600: #E68D00;
+  --yellow-700: #B36E00;
+  --yellow-800: #804E00;
+  --yellow-900: #4D2F00;
+
+  /* Green */
+  --green-50: #F2FBF5;
+  --green-100: #E0F6E9;
+  --green-200: #B3E9C9;
+  --green-300: #7BD8A1;
+  --green-400: #45C27C;
+  --green-500: #1EAA5D;
+  --green-600: #158C4A;
+  --green-700: #11703E;
+  --green-800: #0E5A33;
+  --green-900: #0A4327;
+
+  /* Font */
+  /* Family */
+  --font-primary: 'Poppins', sans-serif;
+  --font-secondary: 'Roboto', sans-serif;
+
+  /* Weight */
+  --font-regular: 400;
+  --font-medium: 450;
+  --font-semibold: 500;
+  --font-bold: 600;
+  --font-extrabold: 700;
+
+  /* Sizes */
+  --size-5xs: 0.25rem;  /* 4px */
+  --size-4xs: 0.375rem; /* 6px */
+  --size-3xs: 0.5rem;   /* 8px */
+  --size-xxs: 0.625rem; /* 10px */
+  --size-xs: 0.75rem;   /* 12px */
+  --size-s: 0.875rem;   /* 14px */
+  --size-m: 1rem;       /* 16px */
+  --size-l: 1.125rem;   /* 18px */
+  --size-xl: 1.25rem;   /* 20px */
+  --size-xxl: 1.5rem;   /* 24px */
+  --size-3xl: 2rem;     /* 32px */
+  --size-4xl: 2.5rem;   /* 40px */
+  --size-5xl: 3rem;     /* 48px */
+
+  /* Transition */
+  /* Durations */
+  --transition-fast: 150ms;
+  --transition-normal: 300ms;
+  --transition-slow: 500ms;
+
+  /* Curves */
+  --transition-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-pop: cubic-bezier(0.25, 1, 0.5, 1);
+  --transition-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --transition-snappy: cubic-bezier(0.19, 1, 0.22, 1);
+  --transition-anticipate: cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+
+  user-select: none;
+  -ms-user-select: none;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  font-size: 100%;
+  scroll-behavior: smooth;
+}
+
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-primary);
+  font-weight: var(--font-extrabold);
+  line-height: 1;
+}
+
+/* Body Text */
+span, p, a, li, label, input, textarea, button {
+  font-family: var(--font-secondary);
+  font-weight: var(--font-regular);
+  line-height: 1;
+}
+
+/* Responsive */
+@media (max-width: 1023px) {
+  html { font-size: 90%; }
+}
+
+@media (max-width: 768px) {
+  html { font-size: 85%; }
+}
