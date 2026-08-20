@@ -168,10 +168,11 @@ const chartOptions = computed(() => ({
 }))
 
 const tableColumns = [
-  { key: 'sender.name', label: 'Pengirim', align: 'left', type: 'text', width: '25%' },
-  { key: 'type', label: 'Kategori', align: 'center', type: 'badge', width: '20%' },
-  { key: 'subject', label: 'Subjek', align: 'left', type: 'text', width: '40%' },
-  { key: 'created_at', label: 'Tanggal', align: 'center', type: 'date', width: '15%' },
+  { key: 'sender.name', label: 'Pengirim', align: 'left', type: 'text', width: '20%' },
+  { key: 'type', label: 'Kategori', align: 'center', type: 'badge', width: '15%' },
+  { key: 'subject', label: 'Subjek', align: 'left', type: 'text', width: '30%' },
+  { key: 'status', label: 'Status', align: 'center', type: 'badge', width: '15%' },
+  { key: 'created_at', label: 'Tanggal', align: 'center', type: 'date', width: '10%' },
   { key: 'row-actions', label: 'Aksi', align: 'center', type: 'slot', width: '10%' }
 ]
 
