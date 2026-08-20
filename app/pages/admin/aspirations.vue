@@ -8,15 +8,25 @@ import IconDelete from '~/assets/icons/actions/delete.svg?component'
 
 definePageMeta({ layout: 'admin' })
 
+const route = useRoute()
 const dayjs = useDayjs()
 const filter = reactive({
-  query: null,
-  type: null,
-  status: null,
-  start_date: dayjs().subtract(1, 'year').format('YYYY-MM-DD'),
-  end_date: dayjs().format('YYYY-MM-DD'),
+  query: route.query.query ? String(route.query.query) : null,
+  type: route.query.type ? String(route.query.type) : null,
+  status: route.query.status ? String(route.query.status) : null,
+  start_date: route.query.start_date ? String(route.query.start_date) : dayjs().subtract(1, 'year').format('YYYY-MM-DD'),
+  end_date: route.query.end_date ? String(route.query.end_date) : dayjs().format('YYYY-MM-DD'),
   limit: 10,
   page: 1
+})
+
+watch(() => route.query, (query) => {
+  filter.type = query.type ? String(query.type) : null
+  filter.status = query.status ? String(query.status) : null
+  filter.query = query.query ? String(query.query) : null
+  if (query.start_date) filter.start_date = String(query.start_date)
+  if (query.end_date) filter.end_date = String(query.end_date)
+  filter.page = 1
 })
 
 const { session } = useSession()

@@ -12,6 +12,9 @@ import IconChevron from '~/assets/icons/chevron/right.svg?component'
 definePageMeta({ layout: 'admin' })
 const path = ['Admin', 'Dashboard']
 
+const { session } = useSession()
+const isSuperAdmin = computed(() => session.value?.role === 'super_admin')
+
 const { getDashboard } = useAPI()
 const { data } = await useAsyncData('dashboard', () => getDashboard(), {
   getCachedData: (key, nuxtApp) => {
@@ -34,7 +37,7 @@ const formatPercentage = (value) => {
 
 // Determine the variant based on the percentage value
 const getVariant = (value) => {
-  if (!value) return 'neutral'
+  if (!value || value === 0) return 'neutral'
   if (value < 0) return 'danger'
   if (value > 0) return 'success'
   return 'neutral'
@@ -44,8 +47,8 @@ const getVariant = (value) => {
 const getCardTitle = (key) => {
   switch (key) {
     case 'aspirations': return 'Aspirasi'
-    case 'innovations': return 'Inovasi'
-    case 'criticisms': return 'Kritik & Saran'
+    case 'innovations': return 'Inovasi Terbuka'
+    case 'criticisms': return 'Kritik Terbuka'
     case 'active_users': return 'Pengguna Aktif'
     default: return key
   }
@@ -62,6 +65,46 @@ const getCardDescription = (key) => {
   }
 }
 
+// Get the card badge text based on the key
+const getCardBadge = (key, kpi, allKpis) => {
+  switch (key) {
+    case 'innovations': return `${kpi.open ?? kpi.total} dari ${allKpis?.aspirations?.total ?? kpi.total} aspirasi`
+    case 'criticisms': return `${kpi.open ?? kpi.total} dari ${kpi.total} kritik`
+    default: return `${formatPercentage(kpi.percentage)} dari bulan lalu`
+  }
+}
+
+// Get the card badge variant based on the key
+const getCardBadgeVariant = (key, kpi) => {
+  switch (key) {
+    case 'innovations': return 'primary'
+    case 'criticisms': return 'warning'
+    default: return getVariant(kpi.percentage)
+  }
+}
+
+// Get the card total value based on the key
+const getCardTotal = (key, kpi) => {
+  switch (key) {
+    case 'innovations':
+    case 'criticisms':
+      return kpi.open ?? kpi.total
+    default:
+      return kpi.total
+  }
+}
+
+// Get the card navigation link based on the key
+const getCardLink = (key) => {
+  switch (key) {
+    case 'aspirations': return '/admin/aspirations'
+    case 'innovations': return '/admin/aspirations?type=innovation&status=open'
+    case 'criticisms': return '/admin/aspirations?type=criticism&status=open'
+    case 'active_users': return isSuperAdmin.value ? '/admin/users' : null
+    default: return null
+  }
+}
+
 // Get the card icon based on the key
 const getCardIcon = (key) => {
   switch (key) {
@@ -73,10 +116,17 @@ const getCardIcon = (key) => {
   }
 }
 
-const sparklineOptions = (variant) => {
+const sparklineOptions = (key, variant) => {
   let color = 'var(--grey-500)'
-  if (variant === 'success') color = 'var(--green-500)'
-  if (variant === 'danger') color = 'var(--red-500)'
+  if (key === 'innovations') {
+    color = 'var(--blue-500)'
+  } else if (key === 'criticisms') {
+    color = 'var(--yellow-500)'
+  } else {
+    if (variant === 'success') color = 'var(--green-500)'
+    else if (variant === 'danger') color = 'var(--red-500)'
+    else color = 'var(--grey-500)'
+  }
 
   return {
     chart: {
@@ -99,7 +149,8 @@ const sparklineOptions = (variant) => {
 const kpis = computed(() => {
   if (!data.value?.kpis) return []
 
-  return Object.entries(data.value.kpis).map(([key, kpi]) => {
+  const allKpis = data.value.kpis
+  return Object.entries(allKpis).map(([key, kpi]) => {
     const variant = getVariant(kpi.percentage)
 
     return {
@@ -107,11 +158,13 @@ const kpis = computed(() => {
       title: getCardTitle(key),
       icon: getCardIcon(key),
       description: getCardDescription(key),
-      total: kpi.total,
-      percentage: `${formatPercentage(kpi.percentage)} dari bulan lalu`,
+      total: getCardTotal(key, kpi),
+      to: getCardLink(key),
+      badge: getCardBadge(key, kpi, allKpis),
+      badgeVariant: getCardBadgeVariant(key, kpi),
       variant: variant,
       sparklineSeries: [{ name: 'Trend', data: kpi.sparkline }],
-      sparklineOptions: sparklineOptions(variant)
+      sparklineOptions: sparklineOptions(key, variant)
     }
   })
 })
@@ -193,9 +246,15 @@ const handleSetAspiration = (row = null) => {
 
     <div class="content">
       <div class="kpis-list">
-        <div v-for="kpi in kpis" :key="kpi.id" class="card kpi">
+        <div
+          v-for="kpi in kpis"
+          :key="kpi.id"
+          class="card kpi"
+          :class="{ 'clickable': !!kpi.to }"
+          @click="kpi.to && navigateTo(kpi.to)"
+        >
           <div class="header">
-            <div class="icon-wrapper">
+            <div :class="['icon-wrapper', kpi.id, kpi.variant]">
               <component :is="kpi.icon" class="kpi-icon" />
             </div>
             <div class="title">
@@ -205,7 +264,7 @@ const handleSetAspiration = (row = null) => {
           </div>
           <div class="value">
             <h3>{{ kpi.total }}</h3>
-            <BaseBadge :value="kpi.percentage" :variant="kpi.variant" />
+            <BaseBadge :value="kpi.badge" :variant="kpi.badgeVariant" />
           </div>
           <div class="chart-wrapper">
             <ClientOnly>
@@ -345,6 +404,19 @@ const handleSetAspiration = (row = null) => {
   position: relative;
 }
 
+.dashboard-page .kpis-list .card.kpi.clickable {
+  cursor: pointer;
+  transition: transform var(--transition-fast) var(--transition-smooth),
+              box-shadow var(--transition-fast) var(--transition-smooth);
+}
+
+@media (hover: hover) {
+  .dashboard-page .kpis-list .card.kpi.clickable:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+}
+
 .dashboard-page .kpis-list .card.kpi .header,
 .dashboard-page .kpis-list .card.kpi .value {
   position: relative;
@@ -358,6 +430,7 @@ const handleSetAspiration = (row = null) => {
 
   display: flex;
   align-items: center;
+  justify-content: center;
 
   gap: var(--size-xs);
   padding: var(--size-xs);
@@ -365,6 +438,53 @@ const handleSetAspiration = (row = null) => {
 
   background-color: var(--grey-50);
   border: 1px solid var(--grey-200);
+  transition: background-color var(--transition-fast) var(--transition-smooth),
+              border-color var(--transition-fast) var(--transition-smooth);
+}
+
+.dashboard-page .kpis-list .card.kpi .header .icon-wrapper.innovations {
+  background-color: var(--blue-50);
+  border-color: var(--blue-200);
+}
+
+.dashboard-page .kpis-list .card.kpi .header .icon-wrapper.innovations .kpi-icon {
+  color: var(--blue-600);
+}
+
+.dashboard-page .kpis-list .card.kpi .header .icon-wrapper.criticisms {
+  background-color: var(--yellow-50);
+  border-color: var(--yellow-200);
+}
+
+.dashboard-page .kpis-list .card.kpi .header .icon-wrapper.criticisms .kpi-icon {
+  color: var(--yellow-600);
+}
+
+.dashboard-page .kpis-list .card.kpi .header .icon-wrapper:is(.aspirations, .active_users).success {
+  background-color: var(--green-50);
+  border-color: var(--green-200);
+}
+
+.dashboard-page .kpis-list .card.kpi .header .icon-wrapper:is(.aspirations, .active_users).success .kpi-icon {
+  color: var(--green-600);
+}
+
+.dashboard-page .kpis-list .card.kpi .header .icon-wrapper:is(.aspirations, .active_users).danger {
+  background-color: var(--red-50);
+  border-color: var(--red-200);
+}
+
+.dashboard-page .kpis-list .card.kpi .header .icon-wrapper:is(.aspirations, .active_users).danger .kpi-icon {
+  color: var(--red-600);
+}
+
+.dashboard-page .kpis-list .card.kpi .header .icon-wrapper:is(.aspirations, .active_users).neutral {
+  background-color: var(--grey-50);
+  border-color: var(--grey-200);
+}
+
+.dashboard-page .kpis-list .card.kpi .header .icon-wrapper:is(.aspirations, .active_users).neutral .kpi-icon {
+  color: var(--grey-500);
 }
 
 .dashboard-page .kpis-list .card.kpi .header .icon-wrapper .kpi-icon {
