@@ -406,15 +406,6 @@ const handleSetAspiration = (row = null) => {
 
 .dashboard-page .kpis-list .card.kpi.clickable {
   cursor: pointer;
-  transition: transform var(--transition-fast) var(--transition-smooth),
-              box-shadow var(--transition-fast) var(--transition-smooth);
-}
-
-@media (hover: hover) {
-  .dashboard-page .kpis-list .card.kpi.clickable:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  }
 }
 
 .dashboard-page .kpis-list .card.kpi .header,
