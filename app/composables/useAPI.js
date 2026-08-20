@@ -99,9 +99,9 @@ export const useAPI = () => {
     return response
   }
 
-  const getMessages = async (filter) => {
-    const payload = formatFilter('message', filter)
-    return await useCustomFetch('/api/admin/message', {
+  const getAspirations = async (filter) => {
+    const payload = formatFilter('aspiration', filter)
+    return await useCustomFetch('/api/admin/aspiration', {
       method: 'GET',
       params: payload,
       _rawRes: true,
@@ -109,14 +109,47 @@ export const useAPI = () => {
     })
   }
 
-  const submitMessage = async (data) => {
+  const getUserAspirations = async (filter) => {
+    const payload = formatFilter('aspiration', filter)
+    return await useCustomFetch('/api/aspiration', {
+      method: 'GET',
+      params: payload,
+      _rawRes: true,
+      _rawErr: true,
+    })
+  }
+
+  const getAspirationById = async (id) => {
+    return await useCustomFetch(`/api/aspiration/${id}`, {
+      method: 'GET',
+      _rawRes: true,
+      _rawErr: true,
+    })
+  }
+
+  const submitAspiration = async (data) => {
     setLoading(true)
     setErrMsg(null)
 
-    const payload = formatBody('message', data)
-    const response = await useCustomFetch('/api/message', {
+    let body
+    if (data instanceof FormData) {
+      body = data
+    } else {
+      const formData = new FormData()
+      formData.append('type', data.type || '')
+      formData.append('subject', data.subject || '')
+      formData.append('body', data.body || '')
+      if (data.files && Array.isArray(data.files)) {
+        data.files.forEach((file) => {
+          formData.append('files', file)
+        })
+      }
+      body = formData
+    }
+
+    const response = await useCustomFetch('/api/aspiration', {
       method: 'POST',
-      body: payload,
+      body,
       _rawRes: true,
     })
 
@@ -128,15 +161,98 @@ export const useAPI = () => {
     return response
   }
 
-  const exportMessages = async (filter) => {
-    const payload = formatFilter('message', filter)
-    const response = await useCustomFetch('/api/admin/message/export', {
+  const closeAspiration = async (id) => {
+    setLoading(true)
+    setErrMsg(null)
+
+    const response = await useCustomFetch(`/api/aspiration/${id}/close`, {
+      method: 'POST',
+      _rawRes: true,
+    })
+
+    if (!response?.success) {
+      setErrMsg('Terjadi kesalahan saat menutup aspirasi')
+    }
+
+    setLoading(false)
+    return response
+  }
+
+  const voteAspiration = async (id, value) => {
+    setLoading(true)
+    setErrMsg(null)
+
+    const response = await useCustomFetch(`/api/aspiration/${id}/vote`, {
+      method: 'POST',
+      body: { value },
+      _rawRes: true,
+    })
+
+    if (!response?.success) {
+      setErrMsg('Terjadi kesalahan saat memberikan vote')
+    }
+
+    setLoading(false)
+    return response
+  }
+
+  const sendDiscussion = async (id, data) => {
+    setLoading(true)
+    setErrMsg(null)
+
+    let body
+    if (data instanceof FormData) {
+      body = data
+    } else {
+      const formData = new FormData()
+      formData.append('message', data.message || '')
+      if (data.files && Array.isArray(data.files)) {
+        data.files.forEach((file) => {
+          formData.append('files', file)
+        })
+      }
+      body = formData
+    }
+
+    const response = await useCustomFetch(`/api/aspiration/${id}/discussion`, {
+      method: 'POST',
+      body,
+      _rawRes: true,
+    })
+
+    if (!response?.success) {
+      setErrMsg('Terjadi kesalahan saat mengirim pesan')
+    }
+
+    setLoading(false)
+    return response
+  }
+
+  const deleteAspiration = async (id) => {
+    setLoading(true)
+    setErrMsg(null)
+
+    const response = await useCustomFetch(`/api/admin/aspiration/${id}`, {
+      method: 'DELETE',
+      _rawRes: true,
+    })
+
+    if (response?.success) await refreshNuxtData('aspirations')
+    else setErrMsg('Terjadi kesalahan saat menghapus aspirasi')
+
+    setLoading(false)
+    return response
+  }
+
+  const exportAspirations = async (filter) => {
+    const payload = formatFilter('aspiration', filter)
+    const response = await useCustomFetch('/api/admin/aspiration/export', {
       method: 'GET',
       params: payload,
       _rawRes: true,
     })
 
-    if (response) download(response, 'messages', 'xlsx')
+    if (response) download(response, 'aspirations', 'xlsx')
   }
 
   const getDashboard = async () => {
@@ -157,9 +273,15 @@ export const useAPI = () => {
     exportUsers,
     resetPassword,
 
-    getMessages,
-    submitMessage,
-    exportMessages,
+    getAspirations,
+    getUserAspirations,
+    getAspirationById,
+    submitAspiration,
+    closeAspiration,
+    voteAspiration,
+    sendDiscussion,
+    deleteAspiration,
+    exportAspirations,
     getDashboard,
   }
 }
@@ -185,7 +307,7 @@ const formatBody = (entity, data) => {
         role: data.role,
       }
 
-    case 'message':
+    case 'aspiration':
       return {
         type: data.type,
         subject: data.subject,
@@ -204,7 +326,8 @@ const formatFilter = (entity, filter) => {
       if (filter.query) payload.query = filter.query
       break
 
-    case 'message':
+    case 'aspiration':
+      if (filter.status) payload.status = filter.status
       if (filter.type) payload.type = filter.type
       if (filter.query) payload.query = filter.query
       if (filter.start_date) payload.start_date = filter.start_date

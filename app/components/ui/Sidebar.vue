@@ -36,10 +36,7 @@ const nav = computed(() => {
       </div>
     </div>
     <footer>
-      <FeaturesUserCard with-name />
-      <NuxtLink to="/" class="action">
-        <BaseButtonDefault label="Masuk sebagai Pengguna" />
-      </NuxtLink>
+      <FeaturesUserCard with-name placement="top" />
     </footer>
   </div>
 </template>
@@ -147,7 +144,6 @@ const nav = computed(() => {
 
   display: flex;
   flex-direction: column;
-  gap: var(--size-3xs);
 }
 
 .sidebar-wrapper :deep(.user-card) {
@@ -163,16 +159,11 @@ const nav = computed(() => {
   border-radius: var(--size-xxs);
 }
 
-.sidebar-wrapper footer a,
-.sidebar-wrapper footer a :deep(button) {
-  width: 100%;
-  text-decoration: none;
-}
-
 @media (hover: hover) {
   .sidebar-wrapper .content .nav-wrapper nav a:hover {
     background-color: var(--grey-50);
   }
 }
 </style>
+
 

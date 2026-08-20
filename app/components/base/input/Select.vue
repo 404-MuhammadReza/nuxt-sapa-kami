@@ -3,7 +3,7 @@ import IconChevron from '~/assets/icons/chevron/down.svg?component'
 
 const props = defineProps({
   maxHeight: { type: String, default: '400px' },
-  label: { type: String, required: true },
+  label: { type: String, default: '' },
   icon: { type: [Object, null], default: null },
   options: { type: Array, required: true },
   placeholder: { type: String, default: null },

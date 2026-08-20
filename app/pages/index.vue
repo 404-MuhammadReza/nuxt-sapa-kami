@@ -1,29 +1,39 @@
 <script setup>
-import IconSend from '~/assets/icons/actions/send.svg?component'
 import IconIdea from '~/assets/icons/menu/idea-fill.svg?component'
 import IconCriticism from '~/assets/icons/menu/criticism-fill.svg?component'
+import IconSend from '~/assets/icons/actions/send.svg?component'
+import IconChevronRight from '~/assets/icons/chevron/right.svg?component'
 
-const { session } = useSession()
-const isAdmin = computed(() => ['admin', 'super_admin'].includes(session.value?.role))
-
-const form = reactive({ type: '', subject: '', body: '' })
-const resetForm = () => { form.type = ''; form.subject = ''; form.body = '' }
-const isValidForm = computed(() => form.subject && form.body)
+const form = reactive({ type: '', subject: '', body: '', files: [] })
+const resetForm = () => {
+  form.type = ''
+  form.subject = ''
+  form.body = ''
+  form.files = []
+}
+const isValidForm = computed(() => Boolean(form.subject && form.body))
 
 const isConfirmed = ref(false)
-const setConfirmed = () => isConfirmed.value = !isConfirmed.value
+const setConfirmed = () => {
+  isConfirmed.value = !isConfirmed.value
+}
 
 const isSubmitted = ref(false)
-const setSubmitted = () => isSubmitted.value = !isSubmitted.value
+const setSubmitted = () => {
+  isSubmitted.value = !isSubmitted.value
+}
 
 const localMsg = ref(null)
 const setErrMsg = (msg = null) => {
   if (msg) localMsg.value = msg
   else localMsg.value = null
-  setTimeout(() => { localMsg.value = null }, 5000)
+  setTimeout(() => {
+    localMsg.value = null
+  }, 5000)
 }
 
-const { isLoading, errMsg, submitMessage } = useAPI()
+const { isLoading, errMsg, submitAspiration } = useAPI()
+
 const handleSubmit = async () => {
   if (!form.type) return setErrMsg('Pilih jenis aspirasi terlebih dahulu!')
   else setErrMsg()
@@ -31,7 +41,7 @@ const handleSubmit = async () => {
   if (!isValidForm.value) return
   if (!isConfirmed.value) return setConfirmed()
 
-  const result = await submitMessage(form)
+  const result = await submitAspiration(form)
   if (result) {
     resetForm()
     setSubmitted()
@@ -41,15 +51,25 @@ const handleSubmit = async () => {
 }
 
 const typeOptions = [
-  { value: 'innovation', label: 'Inovasi', desc: 'Identitas Anda akan disertakan untuk keperluan apresiasi dan tindak lanjut.', icon: IconIdea },
-  { value: 'criticism', label: 'Kritik dan Saran', desc: 'Aspirasi dikirimkan secara anonim tanpa menyertakan identitas pengirim.', icon: IconCriticism }
+  {
+    value: 'innovation',
+    label: 'Inovasi',
+    desc: 'Identitas Anda akan disertakan untuk keperluan apresiasi dan tindak lanjut.',
+    icon: IconIdea
+  },
+  {
+    value: 'criticism',
+    label: 'Kritik dan Saran',
+    desc: 'Aspirasi dikirimkan secara anonim tanpa menyertakan identitas pengirim.',
+    icon: IconCriticism
+  }
 ]
 
 const feedbackText = computed(() => {
   if (isSubmitted.value) {
     return {
       title: 'ASPIRASI ANDA TELAH TERKIRIM!',
-      desc: 'Terima kasih atas partisipasi Anda. Setiap ide inovasi, kritik, maupun saran yang Anda berikan sangat berarti bagi bahan evaluasi dan pengembangan ke depannya. Masukan Anda telah dicatat dalam sistem dan akan ditindaklanjuti sesuai dengan prosedur yang berlaku.'
+      desc: 'Terima kasih atas partisipasi Anda. Setiap ide inovasi, kritik, maupun saran yang Anda berikan sangat berarti bagi bahan evaluasi dan pengembangan ke depannya. Masukan Anda telah dicatat dalam sistem dan dapat dipantau pada halaman Riwayat Aspirasi.'
     }
   }
 
@@ -77,8 +97,9 @@ const feedbackText = computed(() => {
   <div class="home-page">
     <BaseContainer max-width="1000px">
       <div class="content-wrapper">
-        <template v-if="!isSubmitted && !isConfirmed">
+        <template v-if="!isConfirmed && !isSubmitted">
           <FeaturesUserCard />
+
           <form autocomplete="off" @submit.prevent="handleSubmit">
             <BaseInputRadio
               v-model="form.type"
@@ -96,37 +117,45 @@ const feedbackText = computed(() => {
             />
             <BaseInputTextarea
               v-model="form.body"
-              label="Aspirasi"
-              placeholder="Masukkan aspirasi anda"
-              :max-length="2500"
+              variant="dark"
+              label="Isi Aspirasi"
+              placeholder="Tuliskan aspirasi anda secara jelas dan lengkap"
               :disabled="isLoading"
               show-label
               required
             />
+            <BaseInputFile
+              v-model="form.files"
+              variant="dark"
+              label="Lampiran Berkas"
+              show-label
+              :disabled="isLoading"
+            />
             <div class="wrapper">
               <BaseMessage
-                v-if="errMsg || localMsg"
-                :value="errMsg || localMsg"
-                :variant="localMsg ? 'warning' : 'danger'"
+                v-if="localMsg || errMsg"
+                :value="localMsg || errMsg"
+                variant="danger"
               />
               <BaseButtonDefault
-                width="fit-content"
                 variant="primary"
-                type="submit"
-                label="Submit"
+                label="Lanjutkan"
                 icon-order="right"
                 :icon="IconSend"
-                :disabled="!isValidForm"
+                :disabled="!isValidForm || isLoading"
+                type="submit"
               />
             </div>
           </form>
         </template>
+
         <template v-else>
           <div :class="['feedback', { 'is-confirmed': isConfirmed }]">
             <div class="text">
               <h3>{{ feedbackText.title }}</h3>
               <span>{{ feedbackText.desc }}</span>
             </div>
+
             <div class="actions">
               <template v-if="isConfirmed">
                 <BaseButtonDefault
@@ -147,19 +176,24 @@ const feedbackText = computed(() => {
               </template>
               <template v-else-if="isSubmitted">
                 <BaseButtonDefault
-                  variant="primary"
-                  label="Kirim Lagi"
+                  variant="secondary"
+                  label="Kirim Aspirasi Lain"
                   @click="setSubmitted"
                 />
+                <NuxtLink to="/history" class="btn-link">
+                  <BaseButtonDefault
+                    variant="primary"
+                    label="Pantau di Riwayat"
+                    icon-order="right"
+                    :icon="IconChevronRight"
+                  />
+                </NuxtLink>
               </template>
             </div>
           </div>
         </template>
       </div>
     </BaseContainer>
-    <NuxtLink v-if="isAdmin" to="/admin" class="admin-nav">
-      <BaseButtonDefault label="Masuk sebagai Admin" />
-    </NuxtLink>
   </div>
 </template>
 
@@ -258,7 +292,7 @@ const feedbackText = computed(() => {
 
 .home-page .content-wrapper .feedback .actions {
   width: 100%;
-  max-width: 300px;
+  max-width: 340px;
 
   display: flex;
   align-items: center;
@@ -267,21 +301,22 @@ const feedbackText = computed(() => {
   gap: var(--size-s);
 }
 
+.home-page .content-wrapper .feedback .actions .btn-link {
+  text-decoration: none;
+}
+
 .home-page .content-wrapper .feedback.is-confirmed .actions :deep(button) {
   flex: 1;
 }
 
-.home-page .admin-nav {
-  position: absolute;
-  bottom: 0; right: 0;
-  z-index: 0;
+@media (max-width: 640px) {
+  .home-page .content-wrapper .feedback .actions {
+    flex-direction: column;
+  }
 
-  text-decoration: none;
-}
-
-@media (max-height: 750px) {
-  .home-page .admin-nav {
-    display: none;
+  .home-page .content-wrapper .feedback .actions :deep(button),
+  .home-page .content-wrapper .feedback .actions .btn-link {
+    width: 100%;
   }
 }
 </style>

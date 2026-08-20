@@ -145,7 +145,12 @@ const isCurrentPage = (pageNumber) => {
               </td>
               <td v-for="column in columns" :key="column.key">
                 <div :class="['wrapper', column.align]">
-                  <span v-if="getValue(row, column.key) === 'anonymous'" class="anonymous">anonim</span>
+                  <span
+                    v-if="(column.key === 'sender.name' && (!getValue(row, column.key) || row.type === 'criticism')) || getValue(row, column.key) === 'anonymous'"
+                    class="anonymous"
+                  >
+                    Anonim
+                  </span>
                   <span v-else-if="column.type === 'text'">{{ getValue(row, column.key) }}</span>
                   <span v-else-if="column.type === 'date'">{{ formatDate(getValue(row, column.key)) }}</span>
                   <BaseBadge v-else-if="column.type === 'badge'" :value="getValue(row, column.key)" />

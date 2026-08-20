@@ -2,7 +2,7 @@
 const props = defineProps({
   maxHeight: { type: String, default: '200px' },
   maxLength: { type: Number, default: null },
-  label: { type: String, required: true },
+  label: { type: String, default: '' },
   placeholder: { type: String, default: null },
   required: { type: Boolean, default: false },
   disabled: { type: Boolean, default: false },

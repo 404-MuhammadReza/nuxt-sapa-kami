@@ -5,12 +5,12 @@ let clientRefreshPromise = null
 
 export const useCustomFetch = async (request, options = {}) => {
   const nuxtApp = useNuxtApp()
-  const event = import.meta.server ? nuxtApp.ssrContext?.event : null
+  const event = import.meta.server ? (useRequestEvent() || nuxtApp.ssrContext?.event) : null
 
   if (import.meta.server) {
-    const headers = useRequestHeaders(['cookie'])
+    const headers = useRequestHeaders(['cookie', 'origin', 'referer'])
 
-    if (event.context._refreshedCookie) headers.cookie = event.context._refreshedCookie
+    if (event?.context?._refreshedCookie) headers.cookie = event.context._refreshedCookie
     options = { ...options, headers: { ...options.headers, ...headers } }
   }
 
@@ -50,11 +50,18 @@ export const useCustomFetch = async (request, options = {}) => {
 
 const refreshToken = (event) => {
   if (import.meta.server) {
+    if (!event) return Promise.resolve()
+
     if (!event.context._refreshPromise) {
-      const headers = useRequestHeaders(['cookie'])
+      const headers = useRequestHeaders(['cookie', 'origin', 'referer'])
+      const reqUrl = useRequestURL()
+
+      if (!headers.origin && reqUrl?.origin) headers.origin = reqUrl.origin
+      if (!headers.referer && reqUrl?.href) headers.referer = reqUrl.href
+      if (event.context._refreshedCookie) headers.cookie = event.context._refreshedCookie
 
       event.context._refreshPromise = $fetch
-        .raw('/api/auth/refresh', { method: 'GET', headers })
+        .raw('/api/auth/refresh', { method: 'POST', headers })
         .then((res) => {
           const setCookies =
             typeof res.headers.getSetCookie === 'function'
@@ -79,7 +86,7 @@ const refreshToken = (event) => {
   }
 
   if (!clientRefreshPromise) {
-    clientRefreshPromise = $fetch('/api/auth/refresh', { method: 'GET' }).finally(() => {
+    clientRefreshPromise = $fetch('/api/auth/refresh', { method: 'POST' }).finally(() => {
       clientRefreshPromise = null
     })
   }
@@ -120,3 +127,4 @@ const getErr = (error) => {
 
   return { statusCode, statusMessage, message }
 }
+

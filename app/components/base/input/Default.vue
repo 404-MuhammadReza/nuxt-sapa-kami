@@ -3,7 +3,7 @@ import IconShow from '~/assets/icons/actions/password-show.svg?component'
 import IconHide from '~/assets/icons/actions/password-hide.svg?component'
 
 const props = defineProps({
-  label: { type: String, required: true },
+  label: { type: String, default: '' },
   icon: { type: [Object, null], default: null },
   placeholder: { type: String, default: null },
   required: { type: Boolean, default: false },

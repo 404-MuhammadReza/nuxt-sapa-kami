@@ -132,7 +132,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* Body Text */
-span, p, a, li, label, input, textarea, button {
+span, p, a, li, label, input, textarea, button, time, small {
   font-family: var(--font-secondary);
   font-weight: var(--font-regular);
   line-height: 1;
@@ -146,3 +146,26 @@ span, p, a, li, label, input, textarea, button {
 @media (max-width: 768px) {
   html { font-size: 85%; }
 }
+
+
+/* Global Transitions */
+.drawer-enter-active,
+.drawer-leave-active {
+  transition: opacity var(--transition-normal) var(--transition-smooth);
+}
+
+.drawer-enter-active .drawer-panel,
+.drawer-leave-active .drawer-panel {
+  transition: transform var(--transition-normal) var(--transition-smooth);
+}
+
+.drawer-enter-from,
+.drawer-leave-to {
+  opacity: 0;
+}
+
+.drawer-enter-from .drawer-panel,
+.drawer-leave-to .drawer-panel {
+  transform: translateX(100%);
+}
+

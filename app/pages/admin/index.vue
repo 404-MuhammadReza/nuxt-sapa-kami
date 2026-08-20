@@ -43,7 +43,7 @@ const getVariant = (value) => {
 // Get the card title based on the key
 const getCardTitle = (key) => {
   switch (key) {
-    case 'messages': return 'Aspirasi'
+    case 'aspirations': return 'Aspirasi'
     case 'innovations': return 'Inovasi'
     case 'criticisms': return 'Kritik & Saran'
     case 'active_users': return 'Pengguna Aktif'
@@ -54,7 +54,7 @@ const getCardTitle = (key) => {
 // Get the card description based on the key
 const getCardDescription = (key) => {
   switch (key) {
-    case 'messages': return 'Total aspirasi bulan ini'
+    case 'aspirations': return 'Total aspirasi bulan ini'
     case 'innovations': return 'Total inovasi bulan ini'
     case 'criticisms': return 'Total kritik & saran bulan ini'
     case 'active_users': return 'Total pengguna aktif bulan ini'
@@ -65,7 +65,7 @@ const getCardDescription = (key) => {
 // Get the card icon based on the key
 const getCardIcon = (key) => {
   switch (key) {
-    case 'messages': return IconMessage
+    case 'aspirations': return IconMessage
     case 'innovations': return IconIdea
     case 'criticisms': return IconCriticism
     case 'active_users': return IconUsers
@@ -168,16 +168,16 @@ const chartOptions = computed(() => ({
 }))
 
 const tableColumns = [
-  { key: 'user.name', label: 'Pengirim', align: 'left', type: 'text', width: '25%' },
+  { key: 'sender.name', label: 'Pengirim', align: 'left', type: 'text', width: '25%' },
   { key: 'type', label: 'Kategori', align: 'center', type: 'badge', width: '20%' },
   { key: 'subject', label: 'Subjek', align: 'left', type: 'text', width: '40%' },
   { key: 'created_at', label: 'Tanggal', align: 'center', type: 'date', width: '15%' },
   { key: 'row-actions', label: 'Aksi', align: 'center', type: 'slot', width: '10%' }
 ]
 
-const selectedMessage = ref(null)
-const handleSetMsg = (row = null) => {
-  selectedMessage.value = row
+const selectedAspiration = ref(null)
+const handleSetAspiration = (row = null) => {
+  selectedAspiration.value = row
 }
 </script>
 
@@ -219,7 +219,7 @@ const handleSetMsg = (row = null) => {
         </div>
       </div>
 
-      <div class="card messages-chart">
+      <div class="card aspirations-chart">
         <div class="header">
           <div class="title">
             <h2>Tren Aspirasi</h2>
@@ -242,7 +242,7 @@ const handleSetMsg = (row = null) => {
         </div>
       </div>
 
-      <div class="card latest-messages">
+      <div class="card latest-aspirations">
         <div class="header">
           <div class="title">
             <h2>Aspirasi Terbaru</h2>
@@ -253,20 +253,20 @@ const handleSetMsg = (row = null) => {
             <IconChevron class="icon-chevron" />
           </NuxtLink>
         </div>
-        <UiTable :columns="tableColumns" :data="data.latest_messages">
+        <UiTable :columns="tableColumns" :data="data.latest_aspirations">
           <template #row-actions="{ row }">
             <div class="row-actions">
-              <IconShow class="icon-action view" @click.stop="handleSetMsg(row)" />
+              <IconShow class="icon-action view" @click.stop="handleSetAspiration(row)" />
             </div>
           </template>
         </UiTable>
       </div>
     </div>
-    <Transition name="modal">
-      <FeaturesMessageModalView
-        v-if="selectedMessage"
-        v-model="selectedMessage"
-        @close="handleSetMsg()"
+    <Transition name="drawer">
+      <FeaturesAspirationModalView
+        v-if="selectedAspiration"
+        v-model="selectedAspiration"
+        @close="handleSetAspiration()"
       />
     </Transition>
   </div>
@@ -394,12 +394,12 @@ const handleSetMsg = (row = null) => {
   bottom: 0; right: -0;
 }
 
-.dashboard-page .card:is(.messages-chart, .latest-messages) .header {
+.dashboard-page .card:is(.aspirations-chart, .latest-aspirations) .header {
   width: 100%;
   justify-content: space-between;
 }
 
-.dashboard-page .card.messages-chart .header .switcher {
+.dashboard-page .card.aspirations-chart .header .switcher {
   display: flex;
   align-items: center;
 
@@ -411,7 +411,7 @@ const handleSetMsg = (row = null) => {
   border: 1px solid var(--grey-200);
 }
 
-.dashboard-page .card.messages-chart .header .switcher button {
+.dashboard-page .card.aspirations-chart .header .switcher button {
   cursor: pointer;
   border-radius: var(--size-xxs);
   padding: var(--size-3xs) var(--size-s);
@@ -428,23 +428,23 @@ const handleSetMsg = (row = null) => {
               background-color var(--transition-normal) var(--transition-smooth);
 }
 
-.dashboard-page .card.messages-chart .header .switcher button.active {
+.dashboard-page .card.aspirations-chart .header .switcher button.active {
   color: var(--grey-700);
   background-color: var(--white);
   border: 1px solid var(--grey-200);
 }
 
-.dashboard-page .card.latest-messages {
+.dashboard-page .card.latest-aspirations {
   gap: 0;
   padding: 0;
 }
 
-.dashboard-page .card.latest-messages .header {
+.dashboard-page .card.latest-aspirations .header {
   gap: var(--size-xxs);
   padding: var(--size-s);
 }
 
-.dashboard-page .card.latest-messages .header a.view-all {
+.dashboard-page .card.latest-aspirations .header a.view-all {
   display: flex;
   align-items: center;
   gap: var(--size-5xs);
@@ -454,45 +454,45 @@ const handleSetMsg = (row = null) => {
   transition: color var(--transition-fast) var(--transition-smooth);
 }
 
-.dashboard-page .card.latest-messages .header a.view-all:hover {
+.dashboard-page .card.latest-aspirations .header a.view-all:hover {
   text-decoration: underline;
   color: var(--grey-600);
 }
 
-.dashboard-page .card.latest-messages .header a.view-all span {
+.dashboard-page .card.latest-aspirations .header a.view-all span {
   font-size: var(--size-s);
   font-weight: var(--font-regular);
 
   white-space: nowrap;
 }
 
-.dashboard-page .card.latest-messages .header a.view-all .icon-chevron {
+.dashboard-page .card.latest-aspirations .header a.view-all .icon-chevron {
   width: var(--size-s);
   height: var(--size-s);
   flex-shrink: 0;
 }
 
-.dashboard-page .card.latest-messages .header a.view-all .icon-chevron * {
+.dashboard-page .card.latest-aspirations .header a.view-all .icon-chevron * {
   stroke-width: 1.75;
 }
 
-.dashboard-page .card.latest-messages .chart-wrapper {
+.dashboard-page .card.latest-aspirations .chart-wrapper {
   width: 100%;
 }
 
-.dashboard-page .card.latest-messages :deep(.table-container) {
+.dashboard-page .card.latest-aspirations :deep(.table-container) {
   box-shadow: none;
 }
 
-.dashboard-page .card.latest-messages :deep(.table-container .table-wrapper table tbody tr:last-child) {
+.dashboard-page .card.latest-aspirations :deep(.table-container .table-wrapper table tbody tr:last-child) {
   border-bottom: none;
 }
 
-.dashboard-page .card.latest-messages :deep(.table-container .table-wrapper table tbody tr td:has(.wrapper.no-body)) {
+.dashboard-page .card.latest-aspirations :deep(.table-container .table-wrapper table tbody tr td:has(.wrapper.no-body)) {
   background-color: var(--white);
 }
 
-.dashboard-page .card.latest-messages .row-actions {
+.dashboard-page .card.latest-aspirations .row-actions {
   width: 100%;
 
   display: flex;
@@ -502,7 +502,7 @@ const handleSetMsg = (row = null) => {
   gap: var(--size-s);
 }
 
-.dashboard-page .card.latest-messages .row-actions .icon-action {
+.dashboard-page .card.latest-aspirations .row-actions .icon-action {
   width: var(--size-xl);
   height: var(--size-xl);
   flex-shrink: 0;
@@ -514,7 +514,7 @@ const handleSetMsg = (row = null) => {
   transition: color var(--transition-fast) var(--transition-smooth);
 }
 
-.dashboard-page .card.latest-messages .row-actions .icon-action:hover {
+.dashboard-page .card.latest-aspirations .row-actions .icon-action:hover {
   color: var(--blue-600);
 }
 </style>
