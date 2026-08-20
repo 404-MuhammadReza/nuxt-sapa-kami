@@ -46,7 +46,7 @@ const getVariant = (value) => {
 // Get the card title based on the key
 const getCardTitle = (key) => {
   switch (key) {
-    case 'aspirations': return 'Aspirasi'
+    case 'aspirations': return 'Total Aspirasi'
     case 'innovations': return 'Inovasi Terbuka'
     case 'criticisms': return 'Kritik Terbuka'
     case 'active_users': return 'Pengguna Aktif'
@@ -57,19 +57,19 @@ const getCardTitle = (key) => {
 // Get the card description based on the key
 const getCardDescription = (key) => {
   switch (key) {
-    case 'aspirations': return 'Total aspirasi bulan ini'
-    case 'innovations': return 'Total inovasi bulan ini'
-    case 'criticisms': return 'Total kritik & saran bulan ini'
-    case 'active_users': return 'Total pengguna aktif bulan ini'
+    case 'aspirations': return 'Akumulasi seluruh aspirasi masuk'
+    case 'innovations': return 'Inovasi menunggu tindak lanjut'
+    case 'criticisms': return 'Kritik & saran perlu evaluasi'
+    case 'active_users': return 'Karyawan berpartisipasi bulan ini'
     default: return ''
   }
 }
 
 // Get the card badge text based on the key
-const getCardBadge = (key, kpi, allKpis) => {
+const getCardBadge = (key, kpi) => {
   switch (key) {
-    case 'innovations': return `${kpi.open ?? kpi.total} dari ${allKpis?.aspirations?.total ?? kpi.total} aspirasi`
-    case 'criticisms': return `${kpi.open ?? kpi.total} dari ${kpi.total} kritik`
+    case 'innovations': return `dari total ${kpi.total} inovasi`
+    case 'criticisms': return `dari total ${kpi.total} kritik`
     default: return `${formatPercentage(kpi.percentage)} dari bulan lalu`
   }
 }
@@ -160,7 +160,7 @@ const kpis = computed(() => {
       description: getCardDescription(key),
       total: getCardTotal(key, kpi),
       to: getCardLink(key),
-      badge: getCardBadge(key, kpi, allKpis),
+      badge: getCardBadge(key, kpi),
       badgeVariant: getCardBadgeVariant(key, kpi),
       variant: variant,
       sparklineSeries: [{ name: 'Trend', data: kpi.sparkline }],
